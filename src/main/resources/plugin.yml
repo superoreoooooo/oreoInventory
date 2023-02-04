@@ -1,0 +1,3 @@
+name: Inventory
+version: '${project.version}'
+main: win.oreo.inventory.Main
