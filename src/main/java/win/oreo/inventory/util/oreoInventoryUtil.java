@@ -9,16 +9,17 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import win.oreo.inventory.Inventory.Enums.ButtonAction;
-import win.oreo.inventory.Inventory.oreoInvItem;
+import win.oreo.inventory.Inventory.oreoItem;
 import win.oreo.inventory.Inventory.oreoInventory;
 import win.oreo.inventory.Inventory.Enums.ItemType;
 import win.oreo.inventory.Main;
 
 import java.util.*;
 
+import static win.oreo.inventory.Main.prefix;
+
 public class oreoInventoryUtil implements Listener {
     public Main plugin;
-
     public static Set<oreoInventory> oreoInventories = new HashSet<>();
 
     public void initialize() {
@@ -27,24 +28,24 @@ public class oreoInventoryUtil implements Listener {
             UUID id = UUID.fromString(idSting);
             String name = plugin.ymlManager.getConfig().getString("inventory." + idSting + ".name");
             int size = plugin.ymlManager.getConfig().getInt("inventory." + idSting + ".size");
-            HashMap<Integer, oreoInvItem> map = new HashMap<>();
+            HashMap<Integer, oreoItem> map = new HashMap<>();
             for (String index : plugin.ymlManager.getConfig().getConfigurationSection("inventory." + idSting + ".item.").getKeys(false)) {
                 ItemStack itemStack = plugin.ymlManager.getConfig().getItemStack("inventory." + idSting + ".item." + index + ".itemStack");
                 ItemType itemType = ItemType.valueOf(plugin.ymlManager.getConfig().getString("inventory." + idSting + ".item." + index + ".itemType"));
-                oreoInvItem item;
+                oreoItem item;
                 ButtonAction action = ButtonAction.valueOf(plugin.ymlManager.getConfig().getString("inventory." + idSting + ".item." + index + ".action"));
                 if (itemType.equals(ItemType.DEAL)) {
                     int price = plugin.ymlManager.getConfig().getInt("inventory." + idSting + ".item." + index + ".price");
-                    item = new oreoInvItem(itemStack, itemType, price, action);
+                    item = new oreoItem(itemStack, itemType, price, action);
                 }
                 else {
-                    item = new oreoInvItem(itemStack, itemType, 0, action);
+                    item = new oreoItem(itemStack, itemType, 0, action);
                 }
                 map.put(Integer.valueOf(index), item);
             }
             oreoInventory oreoInventory = new oreoInventory(id, name, size, map);
             oreoInventories.add(oreoInventory);
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "LOADED INVENTORY (ID : " + oreoInventory.getId().toString() + " NAME : " + oreoInventory.getInventoryName() + " SIZE : " + oreoInventory.getInventorySize() + " MAP : " + oreoInventory.getInventoryMap() + ")");
+            Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.LIGHT_PURPLE + "LOADED INVENTORY " + ChatColor.WHITE + " (ID : " + oreoInventory.getId().toString() + " NAME : " + oreoInventory.getInventoryName() + " SIZE : " + oreoInventory.getInventorySize() + " MAP : " + oreoInventory.getInventoryMap() + ")");
         }
     }
 
@@ -61,7 +62,7 @@ public class oreoInventoryUtil implements Listener {
                 }
                 plugin.ymlManager.getConfig().set("inventory." + oreoInventory.getId().toString() + ".item." + index + ".action", oreoInventory.getInventoryMap().get(index).getAction().toString());
             }
-            Bukkit.getConsoleSender().sendMessage(ChatColor.LIGHT_PURPLE + "SAVED INVENTORY (ID : " + oreoInventory.getId().toString() + " NAME : " + oreoInventory.getInventoryName() + " SIZE : " + oreoInventory.getInventorySize() + " MAP : " + oreoInventory.getInventoryMap() + ")");
+            Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.LIGHT_PURPLE + "SAVED INVENTORY (ID : " + oreoInventory.getId().toString() + " NAME : " + oreoInventory.getInventoryName() + " SIZE : " + oreoInventory.getInventorySize() + " MAP : " + oreoInventory.getInventoryMap() + ")");
         }
         plugin.ymlManager.saveConfig();
     }

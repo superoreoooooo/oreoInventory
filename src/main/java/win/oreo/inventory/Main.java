@@ -1,11 +1,14 @@
 package win.oreo.inventory;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import win.oreo.inventory.util.oreoInventoryUtil;
 import win.oreo.inventory.util.YmlManager;
 
 public final class Main extends JavaPlugin {
+
+    public static String prefix = ChatColor.WHITE + "[OREO-INVENTORY]";
 
     public YmlManager ymlManager;
     public oreoInventoryUtil oreoInventoryUtil;
@@ -20,13 +23,13 @@ public final class Main extends JavaPlugin {
         this.ymlManager = new YmlManager(this);
         oreoInventoryUtil.initialize();
 
-        Bukkit.getConsoleSender().sendMessage("oreoInventory On!");
+        Bukkit.getConsoleSender().sendMessage(prefix + "oreoInventory On!");
     }
 
     @Override
     public void onDisable() {
         oreoInventoryUtil.save();
 
-        Bukkit.getConsoleSender().sendMessage("oreoInventory Off!");
+        Bukkit.getConsoleSender().sendMessage(prefix + "oreoInventory Off!");
     }
 }
