@@ -5,20 +5,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import win.oreo.inventory.Inventory.Enums.ButtonAction;
 import win.oreo.inventory.Inventory.Enums.ItemType;
+import win.oreo.inventory.Inventory.oreoItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class oreoItemUtil {
-    public static win.oreo.inventory.Inventory.oreoItem create(Material itemMaterial, String itemName, String lore, ItemType itemType, int price, ButtonAction action) {
+    public static oreoItem create(Material itemMaterial, String itemName, List<String> lore, ItemType itemType, ButtonAction action) {
         ItemStack item = new ItemStack(itemMaterial, 1);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(itemName);
-        List<String> lores = new ArrayList<>();
-        lores.add(lore);
-        meta.setLore(lores);
+        meta.setLore(lore);
         item.setItemMeta(meta);
 
-        return new win.oreo.inventory.Inventory.oreoItem(item, itemType, price, action);
+        return new oreoItem(item, itemType, action);
     }
 }

@@ -2,7 +2,10 @@ package win.oreo.inventory.util;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -13,6 +16,7 @@ import win.oreo.inventory.Inventory.oreoItem;
 import win.oreo.inventory.Inventory.oreoInventory;
 import win.oreo.inventory.Inventory.Enums.ItemType;
 import win.oreo.inventory.Main;
+import win.oreo.inventory.listener.oreoInventoryClickEvent;
 
 import java.util.*;
 
@@ -32,16 +36,8 @@ public class oreoInventoryUtil implements Listener {
             for (String index : plugin.ymlManager.getConfig().getConfigurationSection("inventory." + idSting + ".item.").getKeys(false)) {
                 ItemStack itemStack = plugin.ymlManager.getConfig().getItemStack("inventory." + idSting + ".item." + index + ".itemStack");
                 ItemType itemType = ItemType.valueOf(plugin.ymlManager.getConfig().getString("inventory." + idSting + ".item." + index + ".itemType"));
-                oreoItem item;
                 ButtonAction action = ButtonAction.valueOf(plugin.ymlManager.getConfig().getString("inventory." + idSting + ".item." + index + ".action"));
-                if (itemType.equals(ItemType.DEAL)) {
-                    int price = plugin.ymlManager.getConfig().getInt("inventory." + idSting + ".item." + index + ".price");
-                    item = new oreoItem(itemStack, itemType, price, action);
-                }
-                else {
-                    item = new oreoItem(itemStack, itemType, 0, action);
-                }
-                map.put(Integer.valueOf(index), item);
+                map.put(Integer.valueOf(index), new oreoItem(itemStack, itemType, action));
             }
             oreoInventory oreoInventory = new oreoInventory(id, name, size, map);
             oreoInventories.add(oreoInventory);
@@ -57,9 +53,6 @@ public class oreoInventoryUtil implements Listener {
             for (int index : oreoInventory.getInventoryMap().keySet()) {
                 plugin.ymlManager.getConfig().set("inventory." + oreoInventory.getId().toString() + ".item." + index + ".itemStack", oreoInventory.getInventoryMap().get(index).getItemStack());
                 plugin.ymlManager.getConfig().set("inventory." + oreoInventory.getId().toString() + ".item." + index + ".itemType", oreoInventory.getInventoryMap().get(index).getItemType().toString());
-                if (oreoInventory.getInventoryMap().get(index).getItemType().equals(ItemType.DEAL)) {
-                    plugin.ymlManager.getConfig().set("inventory." + oreoInventory.getId().toString() + ".item." + index + ".price", oreoInventory.getInventoryMap().get(index).getPrice());
-                }
                 plugin.ymlManager.getConfig().set("inventory." + oreoInventory.getId().toString() + ".item." + index + ".action", oreoInventory.getInventoryMap().get(index).getAction().toString());
             }
             Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.LIGHT_PURPLE + "SAVED INVENTORY (ID : " + oreoInventory.getId().toString() + " NAME : " + oreoInventory.getInventoryName() + " SIZE : " + oreoInventory.getInventorySize() + " MAP : " + oreoInventory.getInventoryMap() + ")");
@@ -153,7 +146,7 @@ public class oreoInventoryUtil implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) {
             return;
@@ -161,13 +154,17 @@ public class oreoInventoryUtil implements Listener {
         for (oreoInventory inventory : oreoInventories) {
             if (inventory.getInventory().equals(e.getClickedInventory())) {
                 e.setCancelled(true);
+                oreoItem clickedItem = inventory.getInventoryMap().get(e.getSlot());
+                Bukkit.getPluginManager().callEvent(new oreoInventoryClickEvent((Player) e.getWhoClicked(), inventory, clickedItem));
             } else if (inventory.getInventory().equals(e.getInventory())) {
                 e.setCancelled(true);
+                oreoItem clickedItem = inventory.getInventoryMap().get(e.getSlot());
+                Bukkit.getPluginManager().callEvent(new oreoInventoryClickEvent((Player) e.getWhoClicked(), inventory, clickedItem));
             }
         }
     }
 
-    @EventHandler
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onDrag(InventoryDragEvent e) {
         for (oreoInventory inventory : oreoInventories) {
             if (inventory.getInventory().equals(e.getInventory())) {
