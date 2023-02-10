@@ -67,6 +67,92 @@ public class oreoInventoryUtil implements Listener {
         plugin.ymlManager.saveConfig();
     }
 
+    public oreoInventory create(String name, int size, HashMap<Integer, oreoItem> map) {
+        oreoInventory inventory = new oreoInventory(UUID.randomUUID(), name, size, map);
+        oreoInventoryUtil.oreoInventories.add(inventory);
+        return inventory;
+    }
+
+    public oreoInventory create(String name, int size) {
+        oreoInventory inventory = new oreoInventory(UUID.randomUUID(), name, size, new HashMap<>());
+        oreoInventoryUtil.oreoInventories.add(inventory);
+        return inventory;
+    }
+
+    public oreoInventory create(oreoInventory oreoInventory) {
+        oreoInventoryUtil.oreoInventories.add(oreoInventory);
+        return oreoInventory;
+    }
+
+    public void setName(oreoInventory oreoInventory, String name) {
+        oreoInventoryUtil.oreoInventories.remove(oreoInventory);
+        oreoInventory.setInventoryName(name);
+        oreoInventoryUtil.oreoInventories.add(oreoInventory);
+    }
+
+    public void setName(UUID id, String name) {
+        setName(get(id), name);
+    }
+
+    public void setSize(oreoInventory oreoInventory, int size){
+        oreoInventoryUtil.oreoInventories.remove(oreoInventory);
+        oreoInventory.setInventorySize(size);
+        oreoInventoryUtil.oreoInventories.add(oreoInventory);
+    }
+
+    public void setSize(UUID id, int size) {
+        setSize(get(id), size);
+    }
+
+    public void setItems(oreoInventory oreoInventory, HashMap<Integer, oreoItem> map) {
+        oreoInventoryUtil.oreoInventories.remove(oreoInventory);
+        oreoInventory.setInventoryMap(map);
+        oreoInventoryUtil.oreoInventories.add(oreoInventory);
+    }
+
+    public void setItems(UUID id, HashMap<Integer, oreoItem> map) {
+        setItems(get(id), map);
+    }
+
+    public void setItem(oreoInventory oreoInventory, int index, oreoItem item) {
+        oreoInventoryUtil.oreoInventories.remove(oreoInventory);
+        oreoInventory.getInventoryMap().put(index, item);
+        oreoInventoryUtil.oreoInventories.add(oreoInventory);
+    }
+
+    public void setItem(UUID id, int index, oreoItem item) {
+        setItem(get(id), index, item);
+    }
+
+    public Set<oreoInventory> get(String name) {
+        Set<oreoInventory> set = new HashSet<>();
+        for (oreoInventory oreoInventory : oreoInventoryUtil.oreoInventories) {
+            if (oreoInventory.getInventoryName().equals(name)) {
+                set.add(oreoInventory);
+            }
+        }
+        return set;
+    }
+
+    public oreoInventory get(UUID uuid) {
+        for (oreoInventory oreoInventory : oreoInventoryUtil.oreoInventories) {
+            if (oreoInventory.getId().equals(uuid)) return oreoInventory;
+        }
+        return null;
+    }
+
+    public void remove(UUID uuid) {
+        Set<UUID> set = new HashSet<>();
+        oreoInventoryUtil.oreoInventories.forEach(oreoInventory -> set.add(oreoInventory.getId()));
+
+        if (set.contains(uuid)) {
+            Main plugin = JavaPlugin.getPlugin(Main.class);
+            plugin.ymlManager.getConfig().set("inventory." + uuid.toString(), null);
+            plugin.ymlManager.saveConfig();
+            oreoInventoryUtil.oreoInventories.remove(get(uuid));
+        }
+    }
+
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (e.getClickedInventory() == null) {
