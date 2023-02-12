@@ -8,7 +8,7 @@ import win.oreo.inventory.util.YmlManager;
 
 public final class Main extends JavaPlugin {
 
-    public static String prefix = ChatColor.WHITE + "[OREO-INVENTORY]" ;
+    public static String prefix = ChatColor.WHITE + "[OREO-INVENTORY] " ;
 
     public YmlManager ymlManager;
     public oreoInventoryUtil oreoInventoryUtil;
