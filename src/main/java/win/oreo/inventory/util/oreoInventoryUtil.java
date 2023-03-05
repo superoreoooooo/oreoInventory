@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import win.oreo.inventory.Inventory.Enums.ButtonAction;
@@ -75,6 +76,7 @@ public class oreoInventoryUtil implements Listener {
     public void setName(oreoInventory oreoInventory, String name) {
         oreoInventoryUtil.oreoInventories.remove(oreoInventory);
         oreoInventory.setInventoryName(name);
+        oreoInventory.init();
         oreoInventoryUtil.oreoInventories.add(oreoInventory);
     }
 
@@ -85,6 +87,7 @@ public class oreoInventoryUtil implements Listener {
     public void setSize(oreoInventory oreoInventory, int size){
         oreoInventoryUtil.oreoInventories.remove(oreoInventory);
         oreoInventory.setInventorySize(size);
+        oreoInventory.init();
         oreoInventoryUtil.oreoInventories.add(oreoInventory);
     }
 
@@ -95,6 +98,7 @@ public class oreoInventoryUtil implements Listener {
     public void setItems(oreoInventory oreoInventory, HashMap<Integer, oreoItem> map) {
         oreoInventoryUtil.oreoInventories.remove(oreoInventory);
         oreoInventory.setInventoryMap(map);
+        oreoInventory.init();
         oreoInventoryUtil.oreoInventories.add(oreoInventory);
     }
 
@@ -105,6 +109,7 @@ public class oreoInventoryUtil implements Listener {
     public void setItem(oreoInventory oreoInventory, int index, oreoItem item) {
         oreoInventoryUtil.oreoInventories.remove(oreoInventory);
         oreoInventory.getInventoryMap().put(index, item);
+        oreoInventory.init();
         oreoInventoryUtil.oreoInventories.add(oreoInventory);
     }
 
@@ -142,7 +147,10 @@ public class oreoInventoryUtil implements Listener {
 
     public void clear() {
         oreoInventories.clear();
-        save();
+
+        plugin = JavaPlugin.getPlugin(Main.class);
+        plugin.ymlManager.getConfig().set("inventory", null);
+        plugin.ymlManager.saveConfig();
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
@@ -152,8 +160,14 @@ public class oreoInventoryUtil implements Listener {
                 if (inventory.getInventory().equals(e.getClickedInventory()) || inventory.getInventory().equals(e.getInventory())) {
                     e.setCancelled(true);
                     oreoItem clickedItem = inventory.getInventoryMap().get(e.getSlot());
-                    if (clickedItem != null && !clickedItem.getItemType().equals(ItemType.UI)) {
-                        Bukkit.getPluginManager().callEvent(new oreoInventoryClickEvent((Player) e.getWhoClicked(), inventory, clickedItem));
+                    if (clickedItem != null) {
+                        if (clickedItem.getAction().equals(ButtonAction.CLOSE)) {
+                            e.getWhoClicked().closeInventory();
+                        } else {
+                            if (clickedItem.getItemType().equals(ItemType.BUTTON)) {
+                                Bukkit.getPluginManager().callEvent(new oreoInventoryClickEvent((Player) e.getWhoClicked(), inventory, clickedItem));
+                            }
+                        }
                     }
                 }
             }

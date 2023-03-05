@@ -26,11 +26,12 @@ public class oreoInventory implements InventoryHolder {
         this.init();
     }
 
-    private void init() {
+    public void init() {
         inv = Bukkit.createInventory(this, getInventorySize(), getInventoryName());
         for (int index : inventoryMap.keySet()) {
             oreoItem oreoItem = inventoryMap.get(index);
             inv.setItem(index, oreoItem.getItemStack());
+            Bukkit.getConsoleSender().sendMessage("index : " + index + " item : " + oreoItem.getItemStack().getType().name());
         }
     }
 
